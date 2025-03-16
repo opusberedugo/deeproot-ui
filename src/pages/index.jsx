@@ -5,6 +5,7 @@ import FeaturesPage from './FeaturesPage';
 import TeamPage from './TeamPage';
 import LoginPage from './loginPage';
 import SignupPage from './signupPage';
+import Navigation from '../components/navigation';
 
 function HomePage() {
   let titleArray = [
@@ -20,6 +21,17 @@ function HomePage() {
 
   return (
     <>
+      <Navigation 
+      links={[
+        { text: "Home", href: "/" },
+        { text: "Features", href: "/features" },
+        { text: "Team", href: "/team" },
+      ]}
+      authLinks={[
+        { text: "Login", href: "/login" },
+        { text: "Sign Up", href: "/signup", type: "primary" },
+      ]}
+      />
       <Hero
         title={titleArray[Math.floor(Math.random() * titleArray.length)]}
         subtitle={subtitleArray[Math.floor(Math.random() * subtitleArray.length)]}

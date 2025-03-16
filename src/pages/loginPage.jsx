@@ -23,9 +23,17 @@ export default function LoginPage() {
   
   return (
     <>
-    <Navigation  
-    authLinks={[]}
-    />
+    <Navigation 
+      links={[
+        { text: "Home", href: "/" },
+        { text: "Features", href: "/features" },
+        { text: "Team", href: "/team" },
+      ]}
+      authLinks={[
+        { text: "Login", href: "/login" },
+        { text: "Sign Up", href: "/signup", type: "primary" },
+      ]}
+      />
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <LogoSection
         src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"

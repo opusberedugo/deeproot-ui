@@ -1,6 +1,7 @@
 import ReusableForm from "../components/form/ResuableForm";
 import LogoSection from "../components/form/logoSection";
 import { useState } from "react";
+import Navigation from "../components/navigation";
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -19,12 +20,24 @@ export default function SignupPage() {
   };
 
   return (
+    <>
+    <Navigation 
+      links={[
+        { text: "Home", href: "/" },
+        { text: "Features", href: "/features" },
+        { text: "Team", href: "/team" },
+      ]}
+      authLinks={[
+        { text: "Login", href: "/login" },
+        { text: "Sign Up", href: "/signup", type: "primary" },
+      ]}
+    />
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <LogoSection
         src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
         alt="Workflow"
         title="Create your account"
-      />
+        />
       <ReusableForm
         onSubmit={handleSubmit}
         fields={[
@@ -74,7 +87,8 @@ export default function SignupPage() {
           },
         ]}
         switcher={{ text: "Already a member?", href: "/login", cta: "Log in now" }}
-      />
+        />
     </div>
+    </>
   );
 }
