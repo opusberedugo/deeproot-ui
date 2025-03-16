@@ -2,7 +2,7 @@ import Form from "./form";
 import Input from "./input";
 import Label from "./label";
 import ErrorLabel from "./errorLabel";
-import ForgotLink from "./forgotLink";
+import ForgotLink from "./ForgotLink";
 import FormSwitcher from "./FormSwitcher";
 import React from "react";
 
