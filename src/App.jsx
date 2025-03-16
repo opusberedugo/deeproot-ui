@@ -1,23 +1,19 @@
-// import { useState } from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'; // Import routing components
-import './App.css'
-import Index from './pages/index'
-import LoginPage from './pages/loginPage'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import './App.css';
+import Index from './pages/index';
+import LoginPage from './pages/loginPage';
+import NotFound from './pages/NotFound'; // Create this component
+
 function App() {
-  // const [count, setCount] = useState(0)
-
   return (
-      <Router>
+    <Router>
       <Routes>
-        {/* Route for the landing page */}
-        <Route path="/" element={<Index />} />
-
-        {/* Route for the login page */}
+        <Route path="/*" element={<Index />} /> {/* Render Index for all routes */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="*" element={<NotFound />} /> {/* 404 Route */}
       </Routes>
     </Router>
-    
-  )
+  );
 }
 
-export default App
+export default App;
