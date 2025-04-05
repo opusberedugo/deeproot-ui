@@ -1,44 +1,62 @@
-import Form from "./form";
-import Input from "./input";
-import Label from "./label";
-import ErrorLabel from "./errorLabel";
-import ForgotLink from "./ForgotLink";
-import FormSwitcher from "./FormSwitcher";
-import React from "react";
+import { useState } from "react";
+import FormField from "./FormField";
+import Form from "./Form";
+import FormSwitcher from "../common/FormSwitcher";
 
-export default function ReusableForm({
-  onSubmit,
-  fields = [], // Array of field objects { id, label, type, placeholder, name, required, error, forgotLink }
-  switcher, // { text, href, cta }
-}) {
+export default function ReusableForm({ fields = [], onSubmit, switcher }) {
+  const [formData, setFormData] = useState(() =>
+    fields.reduce((acc, field) => {
+      acc[field.name] = "";
+      return acc;
+    }, {})
+  );
+
+  const [errors, setErrors] = useState({});
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setErrors({ ...errors, [e.target.name]: "" }); // clear error on input
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const newErrors = {};
+
+    fields.forEach((field) => {
+      if (field.required && !formData[field.name]) {
+        newErrors[field.name] = `${field.label || "This field"} is required`;
+      }
+    });
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length === 0) {
+      onSubmit(formData);
+    }
+  };
+
   return (
-    <Form onSubmit={onSubmit}>
+    <Form onSubmit={handleSubmit}>
       {fields.map((field) => (
-        <div key={field.id} className="space-y-2">
-          {field.label && <Label text={field.label} id={field.id} />}
-          <Input
-            id={field.id}
-            type={field.type}
-            placeholder={field.placeholder}
-            name={field.name}
-            required={field.required}
-            value={field.value}
-            onChange={field.onChange}
-          />
-          {field.error && <ErrorLabel text={field.error} />}
-          {field.forgotLink && (
-            <ForgotLink linkText={field.forgotLink.text} href={field.forgotLink.href} />
-          )}
-        </div>
+        <FormField
+          key={field.name}
+          {...field}
+          value={formData[field.name]}
+          onChange={handleChange}
+          error={errors[field.name]}
+        />
       ))}
-      <div className="mt-6">
-        <button type="submit" className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+
+      <div>
+        <button
+          type="submit"
+          className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+        >
           Submit
         </button>
       </div>
-      {switcher && switcher.text && switcher.href && switcher.cta && (
-        <FormSwitcher text={switcher.text} href={switcher.href} cta={switcher.cta} />
-      )}
+
+      {switcher && <FormSwitcher {...switcher} />}
     </Form>
   );
 }

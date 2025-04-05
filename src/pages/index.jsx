@@ -1,11 +1,12 @@
-import React from 'react';
-import Hero from '../components/hero';
+import React, { useEffect } from 'react';
+import Hero from '../components/layout/Hero';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import FeaturesPage from './FeaturesPage';
 import TeamPage from './TeamPage';
 import LoginPage from './loginPage';
 import SignupPage from './signupPage';
-import Navigation from '../components/navigation';
+import Navigation from '../components/navigation/Navigation';
+import ChatPage from './app/ChatPage';
 
 function HomePage() {
   let titleArray = [
@@ -18,7 +19,10 @@ function HomePage() {
     "Personalized agricultural insights that help you grow smarter, not harder.",
     "Get expert farming advice, tailored to your unique needs and conditions, all powered by AI.",
   ];
-
+  
+  useEffect(() => {
+    document.title = "Deeproots - " + titleArray[Math.floor(Math.random() * subtitleArray.length)];
+  }, []);
   return (
     <>
       <Navigation 
@@ -51,6 +55,7 @@ export default function Index() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/" element={<Navigate to="/home" replace />} />
+        <Route path="/app" element={<ChatPage />} /> {/* App Landing Page */}
       </Routes>
     </>
   );
