@@ -1,4 +1,4 @@
-import Form from "../components/form/Form";
+// src/pages/LoginPage.jsx - Update this file with final implementation
 import LogoSection from "../components/common/LogoSection";
 import ReusableForm from "../components/form/ResuableForm";
 import { useState, useEffect } from "react";
@@ -38,7 +38,9 @@ export default function LoginPage() {
     return error;
   };
 
-  const handleChange = ({ target: { name, value } }) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    
     // Update form data
     setFormData(prev => ({ ...prev, [name]: value }));
     
@@ -49,6 +51,13 @@ export default function LoginPage() {
     console.log(`Field ${name} changed to "${value}", validation error: "${errorMessage}"`);
     
     // Update errors state
+    setErrors(prev => ({ ...prev, [name]: errorMessage }));
+  };
+
+  const handleBlur = (e) => {
+    const { name } = e.target;
+    const errorMessage = validateField(name, formData[name]);
+    console.log(`Field ${name} blurred, validation error: "${errorMessage}"`);
     setErrors(prev => ({ ...prev, [name]: errorMessage }));
   };
 
@@ -103,10 +112,7 @@ export default function LoginPage() {
               required: true,
               value: formData.email,
               onChange: handleChange,
-              onBlur: ({ target: { name } }) => {
-                const errorMessage = validateField(name, formData[name]);
-                setErrors(prev => ({ ...prev, [name]: errorMessage }));
-              },
+              onBlur: handleBlur,
               error: errors.email || "",
             },
             {
@@ -118,10 +124,7 @@ export default function LoginPage() {
               required: true,
               value: formData.password,
               onChange: handleChange,
-              onBlur: ({ target: { name } }) => {
-                const errorMessage = validateField(name, formData[name]);
-                setErrors(prev => ({ ...prev, [name]: errorMessage }));
-              },
+              onBlur: handleBlur,
               error: errors.password || "",
               showForgot: true,
               forgotLinkText: "Forgot password?",

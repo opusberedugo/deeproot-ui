@@ -1,3 +1,4 @@
+// src/components/form/FormField.jsx - Update this file
 import Label from "../common/Label";
 import Input from "../common/input";
 import ForgotLink from "../common/ForgotLink";
@@ -10,6 +11,7 @@ export default function FormField({
   placeholder, 
   value, 
   onChange, 
+  onBlur,  // Make sure onBlur is included
   name, 
   required, 
   error = "", 
@@ -30,10 +32,11 @@ export default function FormField({
           placeholder={placeholder}
           value={value}
           onChange={onChange}
+          onBlur={onBlur}  // Make sure onBlur is passed to Input
           name={name}
           required={required}
         />
-        {/* Always render ErrorLabel, even if no error */}
+        {/* Always render ErrorLabel with the error text */}
         <ErrorLabel text={error} />
       </div>
     </div>

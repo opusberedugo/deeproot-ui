@@ -1,3 +1,4 @@
+// src/pages/SignupPage.jsx - Update this file with final implementation
 import ReusableForm from "../components/form/ResuableForm";
 import LogoSection from "../components/common/LogoSection";
 import { useState, useEffect } from "react";
@@ -55,7 +56,9 @@ export default function SignupPage() {
     return error;
   };
 
-  const handleChange = ({ target: { name, value } }) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    
     // Update form data
     setFormData(prev => ({ ...prev, [name]: value }));
     
@@ -69,7 +72,8 @@ export default function SignupPage() {
     setErrors(prev => ({ ...prev, [name]: errorMessage }));
   };
 
-  const handleBlur = ({ target: { name } }) => {
+  const handleBlur = (e) => {
+    const { name } = e.target;
     const errorMessage = validateField(name, formData[name]);
     console.log(`Field ${name} blurred, validation error: "${errorMessage}"`);
     setErrors(prev => ({ ...prev, [name]: errorMessage }));
