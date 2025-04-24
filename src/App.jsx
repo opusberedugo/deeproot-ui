@@ -5,6 +5,7 @@ import LoginPage from './pages/loginPage';
 import NotFound from './pages/NotFound'; // Create this component
 import HomePage from './pages/app/HomePage';
 import ChatPage from './pages/app/ChatPage';
+import Dashboard from './pages/app/Dashboard';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/*" element={<NotFound />} /> {/* 404 Route */}
         <Route path="/app" element={<ChatPage />} /> {/* App Landing Page */}
+        <Route path="/app/dashboard" element={<Dashboard />} /> {/* Dashboard Landing Page */}
       </Routes>
     </Router>
   );

@@ -61,11 +61,13 @@ const ChatInput = ({ onSendMessage }) => {
           {/* Send Button */}
           <button
             type="submit"
-            className="p-2 rounded-full bg-blue-600 hover:bg-blue-700 transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            className="p-2 rounded-full bg-blue-600 hover:bg-blue-700 transition-colors">
+            
+            {/* SVG ICON for send */}
+            <svg width="20" height="20" viewBox="0 0 20 20" className='' fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 10L1 19L19 10L1 1L3 10ZM3 10H11" className='stroke-gray-400' stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
+
           </button>
         </div>
       </form>
