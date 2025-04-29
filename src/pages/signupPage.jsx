@@ -9,8 +9,8 @@ export default function SignupPage() {
   const navigate = useNavigate();
   
   const [formData, setFormData] = useState({
-    fname: "",
-    lname: "",
+    firstname: "",
+    lastname: "",
     email: "",
     password: ""
   });
@@ -27,12 +27,12 @@ export default function SignupPage() {
   const validateField = (name, value) => {
     let error = "";
     switch (name) {
-      case "fname":
+      case "firstname":
         if (!value) error = "First name is required";
         else if (value.length < 3) error = "First name must be at least 3 characters";
         else if (!/^[A-Za-z]+$/.test(value)) error = "First name must contain only letters";
         break;
-      case "lname":
+      case "lastname":
         if (!value) error = "Last name is required";
         else if (value.length < 3) error = "Last name must be at least 3 characters";
         else if (!/^[A-Za-z]+$/.test(value)) error = "Last name must contain only letters";
@@ -155,28 +155,28 @@ export default function SignupPage() {
 
   const formFields = [
     {
-      id: "fname",
+      id: "firstname",
       label: "First Name",
       type: "text",
       placeholder: "Enter first name",
-      name: "fname",
+      name: "firstname",
       required: false, // Disable HTML5 validation
-      value: formData.fname,
+      value: formData.firstname,
       onChange: handleChange,
       onBlur: handleBlur,
-      error: errors.fname || ""
+      error: errors.firstname || ""
     },
     {
-      id: "lname",
+      id: "lastname",
       label: "Last Name",
       type: "text",
       placeholder: "Enter last name",
-      name: "lname",
+      name: "lastname",
       required: false, // Disable HTML5 validation
-      value: formData.lname,
+      value: formData.lastname,
       onChange: handleChange,
       onBlur: handleBlur,
-      error: errors.lname || ""
+      error: errors.lastname || "" // Fixed this from errors.lname to errors.lastname
     },
     {
       id: "email",
@@ -255,6 +255,7 @@ export default function SignupPage() {
           }}
           isSubmitting={isSubmitting}
           submitButtonText={isSubmitting ? "Signing up..." : "Sign Up"}
+          noValidate={true} // Added this to explicitly disable HTML5 validation
         />
       </div>
     </>

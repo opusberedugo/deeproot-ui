@@ -1,12 +1,17 @@
-// src/pages/LoginPage.jsx - Update this file with final implementation
+// src/pages/LoginPage.jsx - Updated implementation
 import LogoSection from "../components/common/LogoSection";
 import ReusableForm from "../components/form/ResuableForm";
 import { useState, useEffect } from "react";
 import Navigation from "../components/navigation/Navigation";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
+  const navigate = useNavigate();
+  
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [serverResponse, setServerResponse] = useState(null);
 
   // Debug errors when they change
   useEffect(() => {
@@ -61,8 +66,13 @@ export default function LoginPage() {
     setErrors(prev => ({ ...prev, [name]: errorMessage }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Prevent default form validation
+    if (e && e.stopPropagation) {
+      e.stopPropagation();
+    }
     
     // Validate all fields on submit
     const newErrors = {};
@@ -74,8 +84,82 @@ export default function LoginPage() {
     console.log("Login form submission validation errors:", newErrors);
 
     if (Object.values(newErrors).every(error => !error)) {
-      console.log("Login form submitted successfully:", formData);
-      // Here you would typically send the data to your backend
+      console.log("Login form validated successfully, attempting login:", formData);
+      
+      // Set submitting state
+      setIsSubmitting(true);
+      
+      try {
+        // Call the server endpoint for login
+        const response = await fetch('http://localhost:3001/api/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          console.log("Login successful:", data);
+          
+          // Update server response state
+          setServerResponse({
+            success: true,
+            data: data
+          });
+          
+          // Store user ID in sessionStorage
+          if (data.result && data.result._id) {
+            sessionStorage.setItem('userId', data.result._id);
+            console.log("User ID stored in session storage:", data.result._id);
+          }
+          
+          // Store other user information if needed
+          if (data.result) {
+            sessionStorage.setItem('userEmail', data.result.email);
+            sessionStorage.setItem('userFirstname', data.result.firstname);
+            sessionStorage.setItem('userLastname', data.result.lastname);
+          }
+          
+          // Show success message briefly before redirecting
+          setTimeout(() => {
+            // Redirect to app after successful login
+            navigate('/app');
+          }, 1000);
+        } else {
+          console.error("Login failed:", data);
+          
+          // Update server response state
+          setServerResponse({
+            success: false,
+            error: data.error
+          });
+          
+          // Set error message from server
+          setErrors(prev => ({ 
+            ...prev, 
+            server: data.error || "Invalid email or password" 
+          }));
+        }
+      } catch (error) {
+        console.error("Error during login:", error);
+        
+        // Update server response state
+        setServerResponse({
+          success: false,
+          error: error.message
+        });
+        
+        // Set network error message
+        setErrors(prev => ({ 
+          ...prev, 
+          server: "Network error. Please try again later." 
+        }));
+      } finally {
+        setIsSubmitting(false);
+      }
     } else {
       console.log("Login form has validation errors, not submitting");
     }
@@ -100,16 +184,40 @@ export default function LoginPage() {
           alt="Workflow"
           title="Sign in to your account" 
         />
+        
+        {/* Server error display */}
+        {errors.server && (
+          <div className="max-w-md w-full mx-auto mt-2">
+            <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+              <strong className="font-bold">Error: </strong>
+              <span className="block sm:inline">{errors.server}</span>
+            </div>
+          </div>
+        )}
+        
+        {/* Success message display */}
+        {serverResponse && serverResponse.success && (
+          <div className="max-w-md w-full mx-auto mt-2">
+            <div className="bg-green-50 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+              <strong className="font-bold">Success! </strong>
+              <span className="block sm:inline">Login successful. Redirecting to app...</span>
+            </div>
+          </div>
+        )}
+        
         <ReusableForm
-          onSubmit={handleSubmit}
+          onSubmitHandler={handleSubmit}
+          isSubmitting={isSubmitting}
+          submitButtonText={isSubmitting ? "Logging in..." : "Sign in"}
+          noValidate={true} // Explicitly disable HTML5 validation
           fields={[
             {
               id: "email",
               label: "Email Address",
               type: "email",
               placeholder: "Enter email",
-              name: "email",
-              required: true,
+              name: "email", // Consistent with backend expectations
+              required: false, // Disable HTML5 validation
               value: formData.email,
               onChange: handleChange,
               onBlur: handleBlur,
@@ -120,8 +228,8 @@ export default function LoginPage() {
               label: "Password",
               type: "password",
               placeholder: "Enter password",
-              name: "password",
-              required: true,
+              name: "password", // Consistent with backend expectations
+              required: false, // Disable HTML5 validation
               value: formData.password,
               onChange: handleChange,
               onBlur: handleBlur,
@@ -131,7 +239,7 @@ export default function LoginPage() {
               forgotHref: "/reset",
             },
           ]}
-          switcher={{ text: "Not a member?", href: "/signup", cta: "Sign up now" }} 
+          switcher={{ text: "Not a member?", href: "/signup", cta: "Sign up now" }}
         />
       </div>
     </>
