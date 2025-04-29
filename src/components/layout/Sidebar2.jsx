@@ -75,7 +75,7 @@ const Sidebar = ({
       )}
       
       {/* Desktop sidebar */}
-      <div className={`${classes} ${desktopClasses} ${widthClass}`} {...props}>
+      <div className={`${classes} ${desktopClasses} ${widthClass} flex`} {...props}>
         <div className="p-4 overflow-y-auto h-full">
           {children}
         </div>
