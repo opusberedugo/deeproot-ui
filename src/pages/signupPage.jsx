@@ -1,10 +1,13 @@
-// src/pages/SignupPage.jsx - Update this file with final implementation
+// src/pages/SignupPage.jsx - Updated implementation
 import ReusableForm from "../components/form/ResuableForm";
 import LogoSection from "../components/common/LogoSection";
 import { useState, useEffect } from "react";
 import Navigation from "../components/navigation/Navigation";
+import { useNavigate } from "react-router-dom";
 
 export default function SignupPage() {
+  const navigate = useNavigate();
+  
   const [formData, setFormData] = useState({
     fname: "",
     lname: "",
@@ -13,6 +16,8 @@ export default function SignupPage() {
   });
 
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [serverResponse, setServerResponse] = useState(null);
 
   // Debug errors when they change
   useEffect(() => {
@@ -79,8 +84,12 @@ export default function SignupPage() {
     setErrors(prev => ({ ...prev, [name]: errorMessage }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    // Prevent default form validation
+    if (e && e.stopPropagation) {
+      e.stopPropagation();
+    }
 
     const newErrors = {};
     Object.keys(formData).forEach(name => {
@@ -92,7 +101,53 @@ export default function SignupPage() {
 
     if (Object.values(newErrors).every(error => !error)) {
       console.log("Form submitted successfully:", formData);
-      // Here you would typically send the data to your backend
+      setIsSubmitting(true);
+      
+      try {
+        // Call the server endpoint
+        const response = await fetch('http://localhost:3001/api/addUser', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
+        
+        const data = await response.json();
+        
+        setServerResponse({
+          success: response.ok,
+          data: data
+        });
+        
+        if (response.ok) {
+          console.log("User added successfully:", data);
+          
+          // Set a short delay before redirecting to show success message briefly
+          setTimeout(() => {
+            // Redirect to login page after successful signup
+            navigate('/login');
+          }, 1500);
+        } else {
+          console.error("Failed to add user:", data);
+          setErrors(prev => ({ 
+            ...prev, 
+            server: data.message || "Failed to add user" 
+          }));
+        }
+      } catch (error) {
+        console.error("Error submitting form:", error);
+        setErrors(prev => ({ 
+          ...prev, 
+          server: "Network error. Please try again later." 
+        }));
+        setServerResponse({
+          success: false,
+          error: error.message
+        });
+      } finally {
+        setIsSubmitting(false);
+      }
     } else {
       console.log("Form has validation errors, not submitting");
     }
@@ -105,7 +160,7 @@ export default function SignupPage() {
       type: "text",
       placeholder: "Enter first name",
       name: "fname",
-      required: true,
+      required: false, // Disable HTML5 validation
       value: formData.fname,
       onChange: handleChange,
       onBlur: handleBlur,
@@ -117,7 +172,7 @@ export default function SignupPage() {
       type: "text",
       placeholder: "Enter last name",
       name: "lname",
-      required: true,
+      required: false, // Disable HTML5 validation
       value: formData.lname,
       onChange: handleChange,
       onBlur: handleBlur,
@@ -129,7 +184,7 @@ export default function SignupPage() {
       type: "email",
       placeholder: "Enter email e.g email@example.com",
       name: "email",
-      required: true,
+      required: false, // Disable HTML5 validation
       value: formData.email,
       onChange: handleChange,
       onBlur: handleBlur,
@@ -141,7 +196,7 @@ export default function SignupPage() {
       type: "password",
       placeholder: "Enter password",
       name: "password",
-      required: true,
+      required: false, // Disable HTML5 validation
       value: formData.password,
       onChange: handleChange,
       onBlur: handleBlur,
@@ -169,14 +224,37 @@ export default function SignupPage() {
           alt="Workflow"
           title="Create your account"
         />
+        
+        {/* Server error display */}
+        {errors.server && (
+          <div className="max-w-md w-full mx-auto mt-2">
+            <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+              <strong className="font-bold">Error: </strong>
+              <span className="block sm:inline">{errors.server}</span>
+            </div>
+          </div>
+        )}
+        
+        {/* Success message display */}
+        {serverResponse && serverResponse.success && (
+          <div className="max-w-md w-full mx-auto mt-2">
+            <div className="bg-green-50 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+              <strong className="font-bold">Success! </strong>
+              <span className="block sm:inline">Your account has been created successfully. Redirecting to login page...</span>
+            </div>
+          </div>
+        )}
+        
         <ReusableForm
-          onSubmit={handleSubmit}
+          onSubmitHandler={handleSubmit}
           fields={formFields}
           switcher={{
             text: "Already a member?",
             href: "/login",
             cta: "Log in now"
           }}
+          isSubmitting={isSubmitting}
+          submitButtonText={isSubmitting ? "Signing up..." : "Sign Up"}
         />
       </div>
     </>

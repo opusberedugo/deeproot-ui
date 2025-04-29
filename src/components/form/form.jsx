@@ -1,12 +1,18 @@
-export default function Form({ onSubmit, children }) {
+// Form.jsx
+import React from 'react';
+
+const Form = ({ children, onSubmit, className = '', noValidate = true }) => {
   return (
-    <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
-      <form
-        onSubmit={onSubmit}
-        className="space-y-6 mx-auto bg-white p-8 w-96 rounded-md shadow-lg"
+    <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+      <form 
+        onSubmit={onSubmit} 
+        className={`space-y-6 ${className}`}
+        noValidate={noValidate} // This disables HTML5 validation
       >
         {children}
       </form>
     </div>
   );
-}
+};
+
+export default Form;
