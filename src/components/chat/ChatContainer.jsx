@@ -32,15 +32,23 @@ const ChatContainer = () => {
         return;
       }
       
-      let response = await fetch(`http://localhost:3001/api/${userId}/messages`, );
-      response = []
+      const response = await fetch(`http://localhost:3001/api/${userId}/messages`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch messages');
       }
       
       const data = await response.json();
-      setMessages(data);
+      
+      // Transform the API response to match your component's expected format
+      const transformedMessages = data.result.map(msg => ({
+        type: msg.to === 'AI' ? 'user' : 'ai',
+        content: msg.message,
+        timestamp: new Date(msg.date).toISOString(),
+        id: msg._id
+      }));
+      
+      setMessages(transformedMessages);
       setIsLoading(false);
     } catch (error) {
       console.error('Error fetching messages:', error);
