@@ -40,9 +40,21 @@ const ChatContainer = () => {
       
       const data = await response.json();
       
+      // Handle different response formats from backend
+      let messagesData = [];
+      
+      if (data.result && Array.isArray(data.result)) {
+        messagesData = data.result;
+      } else if (data.message && data.message.includes("No messages found")) {
+        // Backend added an intro message, refetch to get it
+        setTimeout(() => fetchMessages(), 500);
+        setIsLoading(false);
+        return;
+      }
+      
       // Transform the API response to match your component's expected format
-      const transformedMessages = data.result.map(msg => ({
-        type: msg.to === 'AI' ? 'user' : 'ai',
+      const transformedMessages = messagesData.map(msg => ({
+        type: msg.from === 'AI' ? 'ai' : 'user', // Fixed: Check 'from' field, not 'to'
         content: msg.message,
         timestamp: new Date(msg.date).toISOString(),
         id: msg._id
@@ -70,11 +82,14 @@ const ChatContainer = () => {
       setIsLoading(true);
       
       // Optimistically add user message to UI
-      setMessages(prev => [...prev, { 
+      const userMessage = { 
         type: 'user', 
         content: messageText,
-        timestamp: new Date().toISOString()
-      }]);
+        timestamp: new Date().toISOString(),
+        id: 'temp-' + Date.now()
+      };
+      
+      setMessages(prev => [...prev, userMessage]);
       
       // Send message to the correct API endpoint
       const response = await fetch(`http://localhost:3001/api/chat/${userId}`, {
@@ -88,25 +103,26 @@ const ChatContainer = () => {
       });
       
       if (!response.ok) {
+        // Remove optimistic message on error
+        setMessages(prev => prev.filter(msg => msg.id !== userMessage.id));
         throw new Error('Failed to send message');
       }
       
-      // Get the updated messages (including the AI response)
+      // Get the bot response
       const data = await response.json();
       
-      // Update state with the latest messages from the server
-      if (Array.isArray(data)) {
-        setMessages(data);
-      } else if (data && data.message) {
-        // If the API returns just the new message, add it to the existing messages
+      // Backend returns { botMessage: "..." }
+      if (data.botMessage) {
+        // Add AI response to messages
         setMessages(prev => [...prev, {
           type: 'ai',
-          content: data.message,
-          timestamp: new Date().toISOString()
+          content: data.botMessage,
+          timestamp: new Date().toISOString(),
+          id: 'ai-' + Date.now()
         }]);
       } else {
-        // If we can't determine the structure, refetch all messages
-        fetchMessages();
+        // Fallback: refetch all messages if response format is unexpected
+        await fetchMessages();
       }
       
       setIsLoading(false);
@@ -141,9 +157,9 @@ const ChatContainer = () => {
         ) : (
           messages.map((msg, index) => (
             msg.type === 'user' ? (
-              <UserMessage key={index} content={msg.content} />
+              <UserMessage key={msg.id || index} content={msg.content} />
             ) : (
-              <AIMessage key={index} content={msg.content} />
+              <AIMessage key={msg.id || index} content={msg.content} />
             )
           ))
         )}
